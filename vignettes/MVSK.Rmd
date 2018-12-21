@@ -1,0 +1,42 @@
+---
+title: "Mean-variance-skewness-kurtosis efficient portfolios"
+author: "Dries Cornilly"
+date: "December 21, 2018"
+header-includes:
+  - \usepackage{bm}
+output: 
+  pdf_document:
+    toc: true
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{MVSK}
+  \usepackage[utf8]{inputenc}
+bibliography: bibliography.bib
+csl: ASA.csl
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(mvskPortfolios)
+```
+
+# Introduction
+
+Mean-variance-skewness efficient portfolios by means of the shortage function are introduced by @briec2007mean. The extension, as utilised in @boudt2017nearest, is given in general form by
+\begin{equation}
+	\begin{aligned}
+		& \underset{\delta \in \mathbb R, w_i \in [0, 1]}{\text{maximize}}
+		& & \delta \\
+		& \text{subject to}
+		& & \bm{w}^\prime \bm{\mu} \geq \bm{w}_0^\prime \bm{\mu} + s_0 \delta g_M, \\
+		&&& \bm{w}^\prime \bm{\Sigma} \bm{w} \leq \bm{w}_0^\prime \bm{\Sigma} \bm{w}_0 - \delta g_V, \\
+		&&& \bm{w}^\prime \bm{\Phi} (\bm{w} \otimes \bm{w}) \geq \bm{w}_0^\prime \bm{\Phi} (\bm{w}_0 \otimes \bm{w}_0) + s_1 \delta g_S, \\
+		&&& \bm{w}^\prime \bm{\Psi} (\bm{w} \otimes \bm{w} \otimes \bm{w}) \leq \bm{w}_0^\prime \bm{\Psi} (\bm{w}_0 \otimes \bm{w}_0 \otimes \bm{w}_0) - \delta g_K, \\
+		&&& \sum_{i=1}^p w_i = 1,
+	\end{aligned}
+\end{equation}
+where $g = (g_M, g_V, g_S, g_K) \in \mathbb R^4_+$ and the constatnts $s_0 = \text{sgn}(\bm{w}_0^\prime \bm{\mu})$ and $s_1 = \text{sgn}(\bm{w}_0^\prime \bm{\Phi} (\bm{w}_0 \otimes \bm{w}_0))$. In this case, the aim is to simultaneously improve the mean, lower the variance, increase the skewness and decrease the kurtosis. The relative importance of the different moments is determined by the vector $g$. For pure risk-based portfolios, the mean inequality is usually omitted and a common choice of $g$ is to take the absolute values of the benchmark portfolio with weights $\bm{w}_0$. In this case, the optimal portfolio looks for improvements proportional to the moments of the benchmark portfolio. In @boudt2018efficient, this framework is extended by including a risk-based benchmark portfolio and optimally trading off some risk in return for more favourable portfolio moments.
+
+# References

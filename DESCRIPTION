@@ -6,9 +6,10 @@ Author: Dries Cornilly
 Maintainer: Dries Cornilly <driescornilly@gmail.com>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-Suggests: xts
+Suggests: knitr, xts
 Imports: nloptr, PerformanceAnalytics
 License: GPL-2 | GPL-3
 Encoding: UTF-8
 LazyData: true
+VignetteBuilder: knitr
 RoxygenNote: 6.1.0
