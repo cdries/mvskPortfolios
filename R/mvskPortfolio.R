@@ -86,7 +86,7 @@ mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
   if (is.null(g)) g <- abs(getmom(indmom, initport$wopt, m1, M2, M3, M4))
 
   wopt <- matrix(NA, nrow = length(kappa), ncol = p)
-  delta <- rep(NA, p)
+  delta <- rep(NA, length(kappa))
   moms <- matrix(NA, nrow = length(kappa), ncol = sum(indmom))
   for (ii in 1:length(kappa)) {
     effport <- solveMVSKPortfolio(p, initport, kappa[ii], g, m1, M2, M3, M4, indmom, lb, ub, lin_eq,
