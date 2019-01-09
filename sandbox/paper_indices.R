@@ -1,3 +1,4 @@
+
 rm(list = ls())
 
 # this file implements a backtest on the indices data

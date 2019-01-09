@@ -9,7 +9,7 @@ mvskPortfolio(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
   w0 = NULL, g = NULL, kappa = NULL, lb = NULL, ub = NULL,
   lin_eq = NULL, lin_eqC = NULL, nlin_eq = NULL, lin_ieq = NULL,
   lin_ieqC = NULL, nlin_ieq = NULL, riskcriterion = function(w)
-  sum((w - 1/p)^2), options = list())
+  sum((w - 1/p)^2), options = list(), relative = TRUE)
 }
 \arguments{
 \item{m1}{mean vector; not used if NULL}
@@ -45,6 +45,8 @@ mvskPortfolio(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
 \item{riskcriterion}{optimal value of kappa minimizes the risk criterion function}
 
 \item{options}{optimization options}
+
+\item{relative}{steps of kappa are procentual if TRUE, absolute if FALSE}
 }
 \description{
 function determining risk based portfolios that are mean-variance-skewness-kurtosis efficient.

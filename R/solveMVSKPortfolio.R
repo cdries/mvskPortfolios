@@ -1,6 +1,6 @@
 
 solveMVSKPortfolio <- function(p, initport, kappa, g, m1, M2, M3, M4, indmom, lb, ub, lin_eq,
-                               lin_eqC, nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options) {
+                               lin_eqC, nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options, relative) {
 
   ### optimization options
   if (!("maxeval" %in% names(options))) options$maxeval = 10000
@@ -39,7 +39,7 @@ solveMVSKPortfolio <- function(p, initport, kappa, g, m1, M2, M3, M4, indmom, lb
   }
 
   # inequality constraints
-  objw0 <- -(1 - kappa) * initport$val
+  if (relative) objw0 <- -(1 - kappa) * initport$val else objw0 <- -(initport$val + kappa)
   mw0 <- getmom(indmom, initport$wopt, m1, M2, M3, M4)
   sgm <- c(-1, 1, -1, 1)[indmom]
 

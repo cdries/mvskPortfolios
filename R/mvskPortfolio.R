@@ -30,6 +30,7 @@
 #' @param nlin_ieq function with non-linear inequality constraints (returns objective value and jacobian)
 #' @param riskcriterion optimal value of kappa minimizes the risk criterion function
 #' @param options optimization options
+#' @param relative steps of kappa are procentual if TRUE, absolute if FALSE
 #' @author Dries Cornilly
 #' @references
 #' Choueifaty, Y., & Coignard, Y. (2008). Toward maximum diversification.
@@ -63,7 +64,7 @@ mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
                           lin_eq = NULL, lin_eqC = NULL, nlin_eq = NULL,
                           lin_ieq = NULL, lin_ieqC = NULL, nlin_ieq = NULL,
                           riskcriterion = function(w) sum((w - 1 / p)^2),
-                          options = list()) {
+                          options = list(), relative = TRUE) {
 
   p <- nrow(M2)
 
@@ -82,7 +83,7 @@ mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
 
   # efficient update - for each value of kappa
   indmom <- !c(is.null(m1), is.null(M2), is.null(M3), is.null(M4))
-  if (is.null(kappa)) kappa <- seq(0, 0.1, by = 0.01)
+  if (is.null(kappa)) kappa <- 1
   if (is.null(g)) g <- abs(getmom(indmom, initport$wopt, m1, M2, M3, M4))
 
   wopt <- matrix(NA, nrow = length(kappa), ncol = p)
@@ -90,7 +91,7 @@ mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
   moms <- matrix(NA, nrow = length(kappa), ncol = sum(indmom))
   for (ii in 1:length(kappa)) {
     effport <- solveMVSKPortfolio(p, initport, kappa[ii], g, m1, M2, M3, M4, indmom, lb, ub, lin_eq,
-                                  lin_eqC, nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options)
+                                  lin_eqC, nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options, relative)
     wopt[ii,] <- effport$wopt
     delta[ii] <- effport$delta
     moms[ii,] <- effport$moms
