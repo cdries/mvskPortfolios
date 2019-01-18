@@ -72,7 +72,7 @@ solveMVSKPortfolio <- function(p, initport, kappa, g, m1, M2, M3, M4, indmom, lb
       jac <- lin_ieq
     }
     if (!is.null(nlin_ieq)) {
-      nlin_ieq_res <- nlin_eq(w)
+      nlin_ieq_res <- nlin_ieq(w)
       cts <- c(cts, nlin_ieq_res$constraints)
       jac <- rbind(jac, nlin_ieq_res$jacobian)
     }
