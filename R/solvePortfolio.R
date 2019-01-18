@@ -48,7 +48,7 @@ solvePortfolio <- function(p, w0, m1, M2, M3, M4, lb, ub, lin_eq, lin_eqC,
 
     # non-linear constraints
     if (!is.null(nlin_ieq)) {
-      nlin_ieq_res <- nlin_eq(w)
+      nlin_ieq_res <- nlin_ieq(w)
       cts <- c(cts, nlin_ieq_res$constraints)
       jac <- rbind(jac, nlin_ieq_res$jacobian)
     }
