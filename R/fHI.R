@@ -5,7 +5,7 @@ fHI <- function(w) {
   # w         : weight vector
   #
   ### output
-  # objective : standardized Herfindahl index
+  # objective : normalized Herfindahl index
   # gradient  : the gradient of the objective with respect to w
 
   # objective value

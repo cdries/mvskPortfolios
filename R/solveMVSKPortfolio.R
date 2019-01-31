@@ -46,7 +46,9 @@ solveMVSKPortfolio <- function(p, initport, kappa, g, m1, M2, M3, M4, indmom, lb
   if (initport$name == "maxDiv") {
     fn <- function(w) fDR(w, M2)
   } else if (initport$name == "ERC") {
-    # TODO
+    fn <- function(w) fERC(w, M2)
+  } else if (initport$name == "HI") {
+    fn <- function(w) fHI(w)
   } else {
     stop("Choose a valid portfolio objective")
   }

@@ -63,8 +63,7 @@ mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
                           w0 = NULL, g = NULL, kappa = NULL, lb = NULL, ub = NULL,
                           lin_eq = NULL, lin_eqC = NULL, nlin_eq = NULL,
                           lin_ieq = NULL, lin_ieqC = NULL, nlin_ieq = NULL,
-                          riskcriterion = function(w) sum((w - 1 / p)^2),
-                          options = list(), relative = TRUE) {
+                          riskcriterion = NULL, options = list(), relative = TRUE) {
 
   p <- nrow(M2)
 
@@ -98,6 +97,7 @@ mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
   }
 
   # select optimal value of kappa depending on some other criterium.
+  if (is.null(riskcriterion)) riskcriterion <- function(w) fERC(w, M2)$objective
   critvals <- apply(wopt, 1, riskcriterion)
   indopt <- which.min(critvals)
 

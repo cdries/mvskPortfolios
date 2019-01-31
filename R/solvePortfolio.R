@@ -61,7 +61,9 @@ solvePortfolio <- function(p, w0, m1, M2, M3, M4, lb, ub, lin_eq, lin_eqC,
   if (w0 == "maxDiv") {
     fn <- function(w) fDR(w, M2)
   } else if (w0 == "ERC") {
-    # TODO
+    fn <- function(w) fERC(w, M2)
+  } else if (w0 == "HI") {
+    fn <- function(w) fHI(w)
   } else {
     stop("Choose a valid portfolio objective")
   }
