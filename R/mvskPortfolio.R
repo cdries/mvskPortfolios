@@ -96,14 +96,14 @@ mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
     moms[ii,] <- effport$moms
   }
 
-  # select optimal value of kappa depending on some other criterium.
+  # select optimal value of kappa depending on some other criterium
   if (is.null(riskcriterion)) riskcriterion <- function(w) fERC(w, M2)$objective
   critvals <- apply(wopt, 1, riskcriterion)
   indopt <- which.min(critvals)
 
   summ_list <- list("w" = wopt, "kappa" = kappa, "delta" = delta, "moms" = moms,
                     "critvals" = critvals, "indopt" = indopt)
-  w <- wopt[ii,]
+  w <- wopt[indopt,]
 
   return (list("w" = w, "summ" = summ_list))
 }
