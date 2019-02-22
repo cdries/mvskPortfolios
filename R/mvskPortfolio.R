@@ -84,6 +84,10 @@ mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
   indmom <- !c(is.null(m1), is.null(M2), is.null(M3), is.null(M4))
   if (is.null(kappa)) kappa <- 1
   if (is.null(g)) g <- abs(getmom(indmom, initport$wopt, m1, M2, M3, M4))
+  if (g == "mvsk") {
+    g <- abs(getmom(indmom, initport$wopt, m1, M2, M3, M4))
+    g[1] <- 0
+  }
 
   wopt <- matrix(NA, nrow = length(kappa), ncol = p)
   delta <- rep(NA, length(kappa))
