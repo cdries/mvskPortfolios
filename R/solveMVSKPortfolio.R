@@ -102,6 +102,7 @@ solveMVSKPortfolio <- function(p, initport, kappa, g, m1, M2, M3, M4, indmom, lb
   wopt <- sol$solution[-1]
   delta <- sol$solution[1]
   moms <- getmom(indmom, wopt, m1, M2, M3, M4)
+  constr <- sol$eval_g_ineq(sol$solution)$constraints
 
-  return (list("wopt" = wopt, "delta" = delta, "moms" = moms, "name" = initport$name))
+  return (list("wopt" = wopt, "delta" = delta, "moms" = moms, "name" = initport$name, "constr" = constr))
 }
