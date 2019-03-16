@@ -1,2 +1,2 @@
 # mvskPortfolios
-Risk-based higher-order moment efficient portfolios
+Higher moment efficient portfolios
