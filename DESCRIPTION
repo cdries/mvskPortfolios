@@ -1,6 +1,6 @@
 Package: mvskPortfolios
 Type: Package
-Title: Risk-based higher-order moment efficient portfolios
+Title: Higher moment efficient portfolios
 Version: 0.1.0
 Authors@R: c(
   person(given="Dries", family="Cornilly", role=c("cre", "aut"), email="driescornilly@gmail.com")
