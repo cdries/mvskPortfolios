@@ -9,7 +9,7 @@ mvskPortfolio(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
   w0 = NULL, g = NULL, kappa = NULL, lb = NULL, ub = NULL,
   lin_eq = NULL, lin_eqC = NULL, nlin_eq = NULL, lin_ieq = NULL,
   lin_ieqC = NULL, nlin_ieq = NULL, riskcriterion = NULL,
-  options = list(), relative = TRUE)
+  options = list(), relative = TRUE, fnPerf = NULL)
 }
 \arguments{
 \item{m1}{mean vector; not used if NULL}

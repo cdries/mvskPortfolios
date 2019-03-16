@@ -61,11 +61,11 @@
 #'
 #'
 #' @export mvskPortfolio
-mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
-                          w0 = NULL, g = NULL, kappa = NULL, lb = NULL, ub = NULL,
+mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL, w0 = NULL,
+                          g = NULL, kappa = NULL, lb = NULL, ub = NULL,
                           lin_eq = NULL, lin_eqC = NULL, nlin_eq = NULL,
                           lin_ieq = NULL, lin_ieqC = NULL, nlin_ieq = NULL,
-                          riskcriterion = NULL, options = list(), relative = TRUE) {
+                          riskcriterion = NULL, options = list(), relative = TRUE, fnPerf = NULL) {
 
   p <- nrow(M2)
 
@@ -78,40 +78,51 @@ mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
   if (!is.numeric(w0)) {
     initport <- solvePortfolio(p, w0, m1, M2, M3, M4, lb, ub, lin_eq, lin_eqC,
                                nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options)
-  } else {
-    initport <- NULL
+    w0 <- initport$wopt
+    fnPerf <- initport
   }
 
   # efficient update - for each value of kappa
   indmom <- !c(is.null(m1), is.null(M2), is.null(M3), is.null(M4))
-  if (is.null(kappa)) kappa <- 1
-  if (is.null(g)) g <- abs(getmom(indmom, initport$wopt, m1, M2, M3, M4))
-  if (g[1] == "mvsk") {
-    g <- abs(getmom(indmom, initport$wopt, m1, M2, M3, M4))
+  if (is.null(g)) g <- abs(getmom(indmom, w0, m1, M2, M3, M4))
+  if (is.character(g) && g[1] == "mvsk") {
+    g <- abs(getmom(indmom, w0, m1, M2, M3, M4))
     g[1] <- 0
   }
 
-  wopt <- matrix(NA, nrow = length(kappa), ncol = p)
-  delta <- rep(NA, length(kappa))
-  moms <- matrix(NA, nrow = length(kappa), ncol = sum(indmom))
-  constr <- NULL
-  for (ii in 1:length(kappa)) {
-    effport <- solveMVSKPortfolio(p, initport, kappa[ii], g, m1, M2, M3, M4, indmom, lb, ub, lin_eq,
+  if (is.null(kappa)) {
+    # MVSK efficient portfolio without restricting performance function
+    effport <- solveMVSKPortfolio(p, w0, kappa, g, m1, M2, M3, M4, indmom, lb, ub, lin_eq,
                                   lin_eqC, nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options, relative)
-    wopt[ii,] <- effport$wopt
-    delta[ii] <- effport$delta
-    moms[ii,] <- effport$moms
-    constr <- rbind(constr, effport$constr)
+    ret_list <- list("w" = effport$wopt, "delta" = effport$delta,
+                     "summ" = list("w" = effport$wopt, "kappa" = kappa, "delta" = effport$delta, "moms" = effport$moms,
+                                   "critvals" = NA, "indopt" = NA, "constr" = effport$constr))
+
+  } else {
+    # efficient portfolio with restriction on secondary performance function
+    wopt <- matrix(NA, nrow = length(kappa), ncol = p)
+    delta <- rep(NA, length(kappa))
+    moms <- matrix(NA, nrow = length(kappa), ncol = sum(indmom))
+    constr <- NULL
+    for (ii in 1:length(kappa)) {
+      effport <- solveMVSKPortfolio(p, w0, kappa[ii], g, m1, M2, M3, M4, indmom, lb, ub, lin_eq, lin_eqC,
+                                    nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options, relative, fnPerf = fnPerf)
+      wopt[ii,] <- effport$wopt
+      delta[ii] <- effport$delta
+      moms[ii,] <- effport$moms
+      constr <- rbind(constr, effport$constr)
+    }
+
+    # select optimal value of kappa depending on some other criterium
+    if (is.null(riskcriterion)) riskcriterion <- function(w) fERC(w, M2)$objective
+    critvals <- apply(wopt, 1, riskcriterion)
+    indopt <- which.min(critvals)
+
+    summ_list <- list("w" = wopt, "kappa" = kappa, "delta" = delta, "moms" = moms,
+                      "critvals" = critvals, "indopt" = indopt, "constr" = constr)
+    w <- wopt[indopt,]
+    ret_list <- list("w" = w, "delta" = delta[indopt], "summ" = summ_list)
   }
 
-  # select optimal value of kappa depending on some other criterium
-  if (is.null(riskcriterion)) riskcriterion <- function(w) fERC(w, M2)$objective
-  critvals <- apply(wopt, 1, riskcriterion)
-  indopt <- which.min(critvals)
-
-  summ_list <- list("w" = wopt, "kappa" = kappa, "delta" = delta, "moms" = moms,
-                    "critvals" = critvals, "indopt" = indopt, "constr" = constr)
-  w <- wopt[indopt,]
-
-  return (list("w" = w, "summ" = summ_list))
+  return (ret_list)
 }

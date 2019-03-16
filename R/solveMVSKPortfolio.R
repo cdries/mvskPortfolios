@@ -1,6 +1,6 @@
 
-solveMVSKPortfolio <- function(p, initport, kappa, g, m1, M2, M3, M4, indmom, lb, ub, lin_eq,
-                               lin_eqC, nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options, relative) {
+solveMVSKPortfolio <- function(p, w0, kappa, g, m1, M2, M3, M4, indmom, lb, ub, lin_eq, lin_eqC, nlin_eq,
+                               lin_ieq, lin_ieqC, nlin_ieq, options, relative, fnPerf = NULL, mpref = NULL) {
 
   ### optimization options
   if (!("maxeval" %in% names(options))) options$maxeval = 10000
@@ -39,19 +39,23 @@ solveMVSKPortfolio <- function(p, initport, kappa, g, m1, M2, M3, M4, indmom, lb
   }
 
   # inequality constraints
-  if (relative) objw0 <- -(1 - kappa) * initport$val else objw0 <- -(initport$val + kappa)
-  mw0 <- getmom(indmom, initport$wopt, m1, M2, M3, M4)
-  sgm <- c(-1, 1, -1, 1)[indmom]
-
-  if (initport$name == "maxDiv") {
-    fn <- function(w) fDR(w, M2)
-  } else if (initport$name == "ERC") {
-    fn <- function(w) fERC(w, M2)
-  } else if (initport$name == "HI") {
-    fn <- function(w) fHI(w)
+  if (is.null(kappa)) {
+    objw0 <- NULL
+    fn <- function(w) NULL
   } else {
-    stop("Choose a valid portfolio objective")
+    if (relative) objw0 <- -(1 - kappa) * fnPerf$val else objw0 <- -(fnPerf$val + kappa)
+    if (fnPerf$name == "maxDiv") {
+      fn <- function(w) fDR(w, M2)
+    } else if (fnPerf$name == "ERC") {
+      fn <- function(w) fERC(w, M2)
+    } else if (fnPerf$name == "HI") {
+      fn <- function(w) fHI(w)
+    } else {
+      stop("Choose a valid portfolio objective")
+    }
   }
+  mw0 <- getmom(indmom, w0, m1, M2, M3, M4)
+  if (is.null(mpref)) sgm <- c(-1, 1, -1, 1)[indmom] else sgm <- -mpref
 
   g_ineq <- function(x) {
 
@@ -60,12 +64,20 @@ solveMVSKPortfolio <- function(p, initport, kappa, g, m1, M2, M3, M4, indmom, lb
     objRtemp <- fn(w)
 
     # MVSK constraints
+    if (is.numeric(g)) {
+      gf <- delta * g
+      gfgr <- g
+    } else {
+      gtmp <- g(delta)
+      gf <- gtmp$objective
+      gfgr <- gtmp$gradient
+    }
     mw <- getmom(indmom, w, m1, M2, M3, M4)
-    obj <- sgm * (mw - mw0) + delta * g
+    obj <- sgm * (mw - mw0) + gf
     obj <- c(obj, objw0 + objRtemp$objective)
 
     momgr <- getmomgr(indmom, w, m1, M2, M3, M4)
-    momgr <- rbind(cbind(g, momgr * sgm), c(0, objRtemp$gradient))
+    momgr <- rbind(cbind(gfgr, momgr * sgm), c(0, objRtemp$gradient))
 
     # linear and non-linear constraints
     cts <- jac <- NULL
@@ -82,7 +94,7 @@ solveMVSKPortfolio <- function(p, initport, kappa, g, m1, M2, M3, M4, indmom, lb
 
     # combine constraints
     cts <- c(obj, cts)
-    jac <- rbind(momgr, jac)
+    jac <- rbind(momgr, jac)[1:length(cts),]
 
     return (list("constraints" = cts, "jacobian" = jac))
   }
@@ -97,12 +109,12 @@ solveMVSKPortfolio <- function(p, initport, kappa, g, m1, M2, M3, M4, indmom, lb
 
 
   ### optimize portfolio
-  sol <- nloptr::nloptr(x0 = c(0, initport$wopt), eval_f = fobj, lb = c(-1, lb), ub = c(1, ub),
+  sol <- nloptr::nloptr(x0 = c(0, w0), eval_f = fobj, lb = c(-1, lb), ub = c(1, ub),
                         eval_g_eq = g_eq, eval_g_ineq = g_ineq, opts = options)
   wopt <- sol$solution[-1]
   delta <- sol$solution[1]
   moms <- getmom(indmom, wopt, m1, M2, M3, M4)
   constr <- sol$eval_g_ineq(sol$solution)$constraints
 
-  return (list("wopt" = wopt, "delta" = delta, "moms" = moms, "name" = initport$name, "constr" = constr))
+  return (list("wopt" = wopt, "delta" = delta, "moms" = moms, "constr" = constr))
 }
