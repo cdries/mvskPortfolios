@@ -31,6 +31,7 @@
 #' @param riskcriterion optimal value of kappa minimizes the risk criterion function
 #' @param options optimization options
 #' @param relative steps of kappa are procentual if TRUE, absolute if FALSE
+#' @param fnPerf performance measure to decrease by kappa
 #' @author Dries Cornilly
 #' @references
 #' Choueifaty, Y., & Coignard, Y. (2008). Toward maximum diversification.

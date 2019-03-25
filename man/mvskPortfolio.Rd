@@ -47,6 +47,8 @@ mvskPortfolio(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
 \item{options}{optimization options}
 
 \item{relative}{steps of kappa are procentual if TRUE, absolute if FALSE}
+
+\item{fnPerf}{performance measure to decrease by kappa}
 }
 \description{
 function determining risk based portfolios that are mean-variance-skewness-kurtosis efficient.
