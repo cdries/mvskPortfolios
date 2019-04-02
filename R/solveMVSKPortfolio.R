@@ -43,16 +43,21 @@ solveMVSKPortfolio <- function(p, w0, kappa, g, m1, M2, M3, M4, indmom, lb, ub, 
     objw0 <- NULL
     fn <- function(w) NULL
   } else {
-    if (relative) objw0 <- -(1 - kappa) * fnPerf$val else objw0 <- -(fnPerf$val + kappa)
-    if (fnPerf$name == "maxDiv") {
-      fn <- function(w) fDR(w, M2)
-    } else if (fnPerf$name == "ERC") {
-      fn <- function(w) fERC(w, M2)
-    } else if (fnPerf$name == "HI") {
-      fn <- function(w) fHI(w)
+    if (is.function(fnPerf)) {
+      fn <- fnPerf
     } else {
-      stop("Choose a valid portfolio objective")
+      if (fnPerf$name == "maxDiv") {
+        fn <- function(w) fDR(w, M2)
+      } else if (fnPerf$name == "ERC") {
+        fn <- function(w) fERC(w, M2)
+      } else if (fnPerf$name == "HI") {
+        fn <- function(w) fHI(w)
+      } else {
+        stop("Choose a valid portfolio objective")
+      }
     }
+    fn0 <- fn(w0)$objective
+    if (relative) objw0 <- -(1 - kappa) * fn0 else objw0 <- -(fn0 + kappa)
   }
   mw0 <- getmom(indmom, w0, m1, M2, M3, M4)
   if (is.null(mpref)) sgm <- c(-1, 1, -1, 1)[indmom] else sgm <- -mpref
