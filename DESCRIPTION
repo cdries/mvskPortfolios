@@ -6,8 +6,7 @@ Authors@R: c(
   person(given="Dries", family="Cornilly", role=c("cre", "aut"), email="driescornilly@gmail.com")
   , person(given="Kris", family="Boudt", role="aut")
   )
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: This package is designed to tilt financial portfolios to achieve more preferable moments.
 Suggests: knitr, xts
 Imports: nloptr, PerformanceAnalytics
 License: GPL-2 | GPL-3
