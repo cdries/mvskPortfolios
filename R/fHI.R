@@ -5,15 +5,14 @@ fHI <- function(w) {
   # w         : weight vector
   #
   ### output
-  # objective : normalized Herfindahl index
+  # objective : Herfindahl index
   # gradient  : the gradient of the objective with respect to w
 
   # objective value
-  p <- length(w)
-  obj <- (sum(w^2) - 1 / p) / (1 - 1 / p)
+  obj <- sum(w^2)
 
   # gradient
-  gr <- 2 * w / (1 - 1 / p)
+  gr <- 2 * w
 
   return (list("objective" = obj, "gradient" = gr))
 }
