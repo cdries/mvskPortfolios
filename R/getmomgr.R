@@ -1,6 +1,19 @@
 
 getmomgr <- function(indmom, w, m1, M2, M3, M4) {
 
+  ### input
+  # indmom    : vector of length 4 with booleans selecting the
+  #             order of the gradient of the portfolio moments to compute
+  # w         : weight vector
+  # m1        : vector with expected returns
+  # M2        : covariance matrix
+  # M3        : coskewness matrix
+  # M4        : cokurtosis matrix
+  # m1        : optional vector with expected returns
+  #
+  ### output
+  # jacobian or gradient of the portfolio moments with respect to w
+
   momsgr <- matrix(NA, nrow = 4, ncol = length(w))
   if (indmom[1]) momsgr[1,] <- m1
   if (indmom[2]) momsgr[2,] <- PerformanceAnalytics:::derportm2(w, M2)
