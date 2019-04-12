@@ -9,7 +9,6 @@ getmomgr <- function(indmom, w, m1, M2, M3, M4) {
   # M2        : covariance matrix
   # M3        : coskewness matrix
   # M4        : cokurtosis matrix
-  # m1        : optional vector with expected returns
   #
   ### output
   # jacobian or gradient of the portfolio moments with respect to w

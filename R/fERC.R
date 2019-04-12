@@ -6,7 +6,7 @@ fERC <- function(w, M2) {
   # M2        : covariance matrix
   #
   ### output
-  # objective : minus the diversification ratio
+  # objective : equal-risk (standard deviation) contribution objective function
   # gradient  : the gradient of the objective with respect to w
 
   # objective value
