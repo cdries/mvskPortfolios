@@ -6,10 +6,10 @@
 \title{Risk-based higher-order moment efficient portfolios}
 \usage{
 mvskPortfolio(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
-  w0 = NULL, g = NULL, kappa = NULL, lb = NULL, ub = NULL,
-  lin_eq = NULL, lin_eqC = NULL, nlin_eq = NULL, lin_ieq = NULL,
-  lin_ieqC = NULL, nlin_ieq = NULL, riskcriterion = NULL,
-  options = list(), relative = TRUE, fnPerf = NULL)
+  w0 = NULL, g = NULL, lb = NULL, ub = NULL, lin_eq = NULL,
+  lin_eqC = NULL, nlin_eq = NULL, lin_ieq = NULL, lin_ieqC = NULL,
+  nlin_ieq = NULL, href = NULL, kappa = NULL, relative = FALSE,
+  param = NULL, options = list())
 }
 \arguments{
 \item{m1}{mean vector; not used if NULL}
@@ -23,8 +23,6 @@ mvskPortfolio(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
 \item{w0}{weight of the benchmark portfolio / initial portfolio name, see details}
 
 \item{g}{vector with preferences for the moments, see details}
-
-\item{kappa}{vector of values indicating maximum deviation of the benchmark portfolio}
 
 \item{lb}{lower bound for the weights, default rep(0, p)}
 
@@ -42,13 +40,15 @@ mvskPortfolio(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
 
 \item{nlin_ieq}{function with non-linear inequality constraints (returns objective value and jacobian)}
 
-\item{riskcriterion}{optimal value of kappa minimizes the risk criterion function}
+\item{href}{reference function to keep into account while tilting the portfolios (name or function)}
+
+\item{kappa}{vector of values indicating maximum deviation of the reference objective}
+
+\item{relative}{boolean indicating if kappa is absolute or relative}
+
+\item{param}{list with extra arguments for the href function}
 
 \item{options}{optimization options}
-
-\item{relative}{steps of kappa are procentual if TRUE, absolute if FALSE}
-
-\item{fnPerf}{performance measure to decrease by kappa}
 }
 \description{
 function determining risk based portfolios that are mean-variance-skewness-kurtosis efficient.
@@ -75,21 +75,24 @@ M3 <- PerformanceAnalytics:::M3.MM(x, as.mat = FALSE)
 M4 <- PerformanceAnalytics:::M4.MM(x, as.mat = FALSE)
 
 # optimal MVSK portfolio
-resMVSK <- mvskPortfolio(m1 = m1, M2 = M2, M3 = M3, M4 = M4, kappa = c(0, 0.01, 0.02),
-                         w0 = "maxDiv", g = "mvsk", ub = rep(0.3, 5))
+resMVSK <- mvskPortfolio(m1 = m1, M2 = M2, M3 = M3, M4 = M4, w0 = "DR",
+                         g = "mvsk", ub = rep(0.3, 5), href = "DR",
+                         kappa = c(0, 0.01, 0.025, 0.05))
 
 # show weights
-barplot(resMVSK$summ$w, beside = TRUE)
-
+barplot(resMVSK$w, beside = TRUE)
 
 }
 \references{
-Choueifaty, Y., & Coignard, Y. (2008). Toward maximum diversification.
-Journal of Portfolio Management, 35(1), 40.
+Boudt, K., Cornilly, D., Van Holle, F., & Willems, J. (2019). Algorithmic portfolio
+tilting to harvest higher moment gains. working paper
 
 Briec, W., Kerstens, K., & Jokung, O. (2007). Mean-variance-skewness portfolio
 performance gauging: a general shortage function and dual approach.
 Management science, 53(1), 135-149.
+
+Choueifaty, Y., & Coignard, Y. (2008). Toward maximum diversification.
+Journal of Portfolio Management, 35(1), 40.
 }
 \author{
 Dries Cornilly

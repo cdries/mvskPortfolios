@@ -1,6 +1,36 @@
 
-solveMVSKPortfolio <- function(p, w0, kappa, g, m1, M2, M3, M4, indmom, lb, ub, lin_eq, lin_eqC, nlin_eq,
-                               lin_ieq, lin_ieqC, nlin_ieq, options, relative, fnPerf = NULL, mpref = NULL) {
+solveMVSKPortfolio <- function(p, w0, g, m1, M2, M3, M4, indmom, lb, ub, lin_eq, lin_eqC,
+                               nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options,
+                               href, kappa, relative, param, mompref) {
+
+  ### input
+  # p         : dimension of the portfolio
+  # w0        : numeric vector of length w0 with reference portfolio weights
+  # g         : either function g(delta) or vector for direction of improvement
+  # m1        : vector with expected returns
+  # M2        : covariance matrix
+  # M3        : coskewness matrix
+  # M4        : cokurtosis matrix
+  # indmom    : boolean vector of length 4 indicating which moments to use
+  # lb        : vector with lower bounds for the weights
+  # ub        : vector with upper bounds for the weights
+  # lin_eq    : equality constraints: eq w = eqC (should be matrix!), see details
+  # lin_eqC   : equality constraints: eq w = eqC, see details
+  # nlin_eq   : function with non-linear equality constraint (returns objective value and jacobian)
+  # lin_ieq   : inequality constraints: ieq w leq ieqC (should be matrix!)
+  # lin_ieqC  : inequality constraints: ieq w leq ieqC
+  # nlin_ieq  : function with non-linear inequality constraints (returns objective value and jacobian)
+  # options   : optimization options
+  # href      : either function or one of the preset names; href(w) leq href(w0) + kappa
+  # kappa     : margin on href
+  # relative  : determines if margin is relative or absolute;
+  #             in case of relative: href(w) leq (1 + sign(href(w0) * kappa) href(w0)
+  # param     : list with additional parameters for the href function
+  # mompref   : moment preferences (+1 for higher, -1 for lower)
+  #
+  ### output
+  # objective : minus the diversification ratio
+  # gradient  : the gradient of the objective with respect to w
 
   ### optimization options
   if (!("maxeval" %in% names(options))) options$maxeval = 10000
@@ -10,10 +40,6 @@ solveMVSKPortfolio <- function(p, w0, kappa, g, m1, M2, M3, M4, indmom, lb, ub, 
 
 
   ### set up constraints
-  # box constraints
-  if (is.null(lb)) lb <- rep(0, p)
-  if (is.null(ub)) ub <- rep(1, p)
-
   # equality constraints
   g_eq <- function(x) {
 
@@ -35,32 +61,25 @@ solveMVSKPortfolio <- function(p, w0, kappa, g, m1, M2, M3, M4, indmom, lb, ub, 
 
     if (!is.null(cts)) jac <- cbind(0, jac)
 
-    return (list("constraints" = cts, "jacobian" = jac))
+    list(constraints = cts, jacobian = jac)
   }
 
   # inequality constraints
-  if (is.null(kappa)) {
+  if (is.null(href)) {
     objw0 <- NULL
     fn <- function(w) NULL
   } else {
-    if (is.function(fnPerf)) {
-      fn <- fnPerf
+    if (is.function(href)) {
+      fn <- href
     } else {
-      if (fnPerf$name == "maxDiv") {
-        fn <- function(w) fDR(w, M2)
-      } else if (fnPerf$name == "ERC") {
-        fn <- function(w) fERC(w, M2)
-      } else if (fnPerf$name == "HI") {
-        fn <- function(w) fHI(w)
-      } else {
-        stop("Choose a valid portfolio objective")
-      }
+      if (href == "TEvol" && !("wref" %in% names(param))) param <- list(wref = w0)
+      fn <- get_href(href, m1, M2, M3, M4, param)
     }
     fn0 <- fn(w0)$objective
-    if (relative) objw0 <- -(1 - kappa) * fn0 else objw0 <- -(fn0 + kappa)
+    if (relative) objw0 <- (1 + sign(fn0) * kappa) * fn0 else objw0 <- (fn0 + kappa)
   }
   mw0 <- getmom(indmom, w0, m1, M2, M3, M4)
-  if (is.null(mpref)) sgm <- c(-1, 1, -1, 1)[indmom] else sgm <- -mpref
+  if (is.null(mompref)) sgm <- c(-1, 1, -1, 1)[indmom] else sgm <- -mompref
 
   g_ineq <- function(x) {
 
@@ -79,7 +98,7 @@ solveMVSKPortfolio <- function(p, w0, kappa, g, m1, M2, M3, M4, indmom, lb, ub, 
     }
     mw <- getmom(indmom, w, m1, M2, M3, M4)
     obj <- sgm * (mw - mw0) + gf
-    obj <- c(obj, objw0 + objRtemp$objective)
+    obj <- c(obj, objRtemp$objective - objw0)
 
     momgr <- getmomgr(indmom, w, m1, M2, M3, M4)
     momgr <- rbind(cbind(gfgr, momgr * sgm), c(0, objRtemp$gradient))
@@ -101,15 +120,16 @@ solveMVSKPortfolio <- function(p, w0, kappa, g, m1, M2, M3, M4, indmom, lb, ub, 
     cts <- c(obj, cts)
     jac <- rbind(momgr, jac)[1:length(cts),]
 
-    return (list("constraints" = cts, "jacobian" = jac))
+    list(constraints = cts, jacobian = jac)
   }
 
-  # objective function
+
+  ### objective function
   fobj <- function(x) {
     obj <- -x[1]
     gr <- rep(0, length(x))
     gr[1] <- -1
-    return (list("objective" = obj, "gradient" = gr))
+    list(objective = obj, gradient = gr)
   }
 
 
@@ -121,5 +141,5 @@ solveMVSKPortfolio <- function(p, w0, kappa, g, m1, M2, M3, M4, indmom, lb, ub, 
   moms <- getmom(indmom, wopt, m1, M2, M3, M4)
   constr <- sol$eval_g_ineq(sol$solution)$constraints
 
-  return (list("wopt" = wopt, "delta" = delta, "moms" = moms, "constr" = constr))
+  list(w = wopt, delta = delta, moms = moms, constr = constr)
 }

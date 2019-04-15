@@ -19,7 +19,6 @@
 #' @param M4 cokurtosis matrix; not used if NULL
 #' @param w0 weight of the benchmark portfolio / initial portfolio name, see details
 #' @param g vector with preferences for the moments, see details
-#' @param kappa vector of values indicating maximum deviation of the benchmark portfolio
 #' @param lb lower bound for the weights, default rep(0, p)
 #' @param ub upper bound for the weights, default rep(1, p)
 #' @param lin_eq equality constraints: eq w = eqC (should be matrix!), see details
@@ -28,18 +27,22 @@
 #' @param lin_ieq inequality constraints: ieq w leq ieqC (should be matrix!)
 #' @param lin_ieqC inequality constraints: ieq w leq ieqC
 #' @param nlin_ieq function with non-linear inequality constraints (returns objective value and jacobian)
-#' @param riskcriterion optimal value of kappa minimizes the risk criterion function
+#' @param href reference function to keep into account while tilting the portfolios (name or function)
+#' @param kappa vector of values indicating maximum deviation of the reference objective
+#' @param relative boolean indicating if kappa is absolute or relative
+#' @param param list with extra arguments for the href function
 #' @param options optimization options
-#' @param relative steps of kappa are procentual if TRUE, absolute if FALSE
-#' @param fnPerf performance measure to decrease by kappa
 #' @author Dries Cornilly
 #' @references
-#' Choueifaty, Y., & Coignard, Y. (2008). Toward maximum diversification.
-#' Journal of Portfolio Management, 35(1), 40.
+#' Boudt, K., Cornilly, D., Van Holle, F., & Willems, J. (2019). Algorithmic portfolio
+#' tilting to harvest higher moment gains. working paper
 #'
 #' Briec, W., Kerstens, K., & Jokung, O. (2007). Mean-variance-skewness portfolio
 #' performance gauging: a general shortage function and dual approach.
 #' Management science, 53(1), 135-149.
+#'
+#' Choueifaty, Y., & Coignard, Y. (2008). Toward maximum diversification.
+#' Journal of Portfolio Management, 35(1), 40.
 #'
 #' @examples
 #' # load data
@@ -54,76 +57,68 @@
 #' M4 <- PerformanceAnalytics:::M4.MM(x, as.mat = FALSE)
 #'
 #' # optimal MVSK portfolio
-#' resMVSK <- mvskPortfolio(m1 = m1, M2 = M2, M3 = M3, M4 = M4, kappa = c(0, 0.01, 0.02),
-#'                          w0 = "maxDiv", g = "mvsk", ub = rep(0.3, 5))
+#' resMVSK <- mvskPortfolio(m1 = m1, M2 = M2, M3 = M3, M4 = M4, w0 = "DR",
+#'                          g = "mvsk", ub = rep(0.3, 5), href = "DR",
+#'                          kappa = c(0, 0.01, 0.025, 0.05))
 #'
 #' # show weights
-#' barplot(resMVSK$summ$w, beside = TRUE)
-#'
+#' barplot(resMVSK$w, beside = TRUE)
 #'
 #' @export mvskPortfolio
-mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL, w0 = NULL,
-                          g = NULL, kappa = NULL, lb = NULL, ub = NULL,
-                          lin_eq = NULL, lin_eqC = NULL, nlin_eq = NULL,
-                          lin_ieq = NULL, lin_ieqC = NULL, nlin_ieq = NULL,
-                          riskcriterion = NULL, options = list(), relative = TRUE, fnPerf = NULL) {
+mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL, w0 = NULL, g = NULL,
+                          lb = NULL, ub = NULL, lin_eq = NULL, lin_eqC = NULL, nlin_eq = NULL,
+                          lin_ieq = NULL, lin_ieqC = NULL, nlin_ieq = NULL, href = NULL,
+                          kappa = NULL, relative = FALSE, param = NULL, options = list()) {
 
   p <- nrow(M2)
 
-  # initial portfolio
-  if (is.null(w0)) w0 <- "maxDiv"
+  # default constraints
   if (is.null(lin_eq) || is.null(lin_eqC)) {
     lin_eq <- matrix(1, nrow = 1, ncol = p)
     lin_eqC <- 1
   }
+  if (is.null(lb)) lb <- rep(0, p)
+  if (is.null(ub)) ub <- rep(1, p)
+
+  # initial portfolio
+  if (is.null(w0)) w0 <- rep(1 / p, p)
   if (!is.numeric(w0)) {
-    initport <- solvePortfolio(p, w0, m1, M2, M3, M4, lb, ub, lin_eq, lin_eqC,
-                               nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options)
-    w0 <- initport$wopt
-    fnPerf <- initport
+    w0 <- solvePortfolio(p, w0, m1, M2, M3, M4, lb, ub, lin_eq, lin_eqC,
+                         nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options, param)
   }
 
-  # efficient update - for each value of kappa
+  # initialize direction g of moment improvement
   indmom <- !c(is.null(m1), is.null(M2), is.null(M3), is.null(M4))
   if (is.null(g)) g <- abs(getmom(indmom, w0, m1, M2, M3, M4))
   if (is.character(g) && g[1] == "mvsk") {
     g <- abs(getmom(indmom, w0, m1, M2, M3, M4))
-    g[1] <- 0
+    if (indmom[1]) g[1] <- 0
   }
 
-  if (is.null(kappa)) {
-    # MVSK efficient portfolio without restricting performance function
-    effport <- solveMVSKPortfolio(p, w0, kappa, g, m1, M2, M3, M4, indmom, lb, ub, lin_eq,
-                                  lin_eqC, nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options, relative)
-    ret_list <- list("w" = effport$wopt, "delta" = effport$delta,
-                     "summ" = list("w" = effport$wopt, "kappa" = kappa, "delta" = effport$delta, "moms" = effport$moms,
-                                   "critvals" = NA, "indopt" = NA, "constr" = effport$constr))
+  # MVSK efficient portfolio
+  if (is.null(href)) {
+    # unrestricted MVSK efficient portfolio
+    effport <- solveMVSKPortfolio(p, w0, g, m1, M2, M3, M4, indmom, lb, ub, lin_eq, lin_eqC, nlin_eq,
+                                  lin_ieq, lin_ieqC, nlin_ieq, options, NULL, 0, FALSE, NULL, NULL)
 
   } else {
-    # efficient portfolio with restriction on secondary performance function
+    # efficient portfolio with restriction on href
     wopt <- matrix(NA, nrow = length(kappa), ncol = p)
     delta <- rep(NA, length(kappa))
     moms <- matrix(NA, nrow = length(kappa), ncol = sum(indmom))
     constr <- NULL
+    if (is.null(kappa)) kappa <- 0
     for (ii in 1:length(kappa)) {
-      effport <- solveMVSKPortfolio(p, w0, kappa[ii], g, m1, M2, M3, M4, indmom, lb, ub, lin_eq, lin_eqC,
-                                    nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options, relative, fnPerf = fnPerf)
-      wopt[ii,] <- effport$wopt
+      effport <- solveMVSKPortfolio(p, w0, g, m1, M2, M3, M4, indmom, lb, ub, lin_eq, lin_eqC,
+                                    nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options,
+                                    href, kappa[ii], relative, param, NULL)
+      wopt[ii,] <- effport$w
       delta[ii] <- effport$delta
       moms[ii,] <- effport$moms
       constr <- rbind(constr, effport$constr)
     }
-
-    # select optimal value of kappa depending on some other criterium
-    if (is.null(riskcriterion)) riskcriterion <- function(w) fERC(w, M2)$objective
-    critvals <- apply(wopt, 1, riskcriterion)
-    indopt <- which.min(critvals)
-
-    summ_list <- list("w" = wopt, "kappa" = kappa, "delta" = delta, "moms" = moms,
-                      "critvals" = critvals, "indopt" = indopt, "constr" = constr)
-    w <- wopt[indopt,]
-    ret_list <- list("w" = w, "delta" = delta[indopt], "summ" = summ_list)
+    effport <- list(w = wopt, delta = delta, moms = moms, constr = constr)
   }
 
-  return (ret_list)
+  effport
 }

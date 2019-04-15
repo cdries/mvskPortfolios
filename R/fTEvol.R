@@ -1,11 +1,10 @@
 
-ieqTEvol <- function(w, M2, wref, maxTEvol) {
+fTEvol <- function(w, M2, wref) {
 
   ### input
   # w         : weight vector
   # M2        : covariance matrix
   # wref      : weight vector of reference portfolio
-  # maxTEvol  : maximum tracking error volatility
   #
   ### output
   # objective : tracking error volatility minus maxTEvol
@@ -15,10 +14,10 @@ ieqTEvol <- function(w, M2, wref, maxTEvol) {
   wdiff <- w - wref
   M2wdiff <- M2 %*% wdiff
   TEvol <- sqrt(sum(wdiff * M2wdiff))
-  obj <- TEvol - maxTEvol
+  obj <- TEvol
 
   # gradient
   gr <- M2wdiff / TEvol
 
-  return (list("objective" = obj, "gradient" = gr))
+  list(objective = obj, gradient = gr)
 }
