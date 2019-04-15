@@ -17,7 +17,7 @@ fTEvol <- function(w, M2, wref) {
   obj <- TEvol
 
   # gradient
-  gr <- M2wdiff / TEvol
+  if (obj < 1e-10) gr <- rep(0, length(w)) else gr <- M2wdiff / TEvol
 
   list(objective = obj, gradient = gr)
 }
