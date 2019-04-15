@@ -77,13 +77,22 @@ M2 <- cov(x)
 M3 <- PerformanceAnalytics:::M3.MM(x, as.mat = FALSE)
 M4 <- PerformanceAnalytics:::M4.MM(x, as.mat = FALSE)
 
-# optimal MVSK portfolio
+# MVSK tilting - starting from "DR", tilting with margin on "DR"
 resMVSK <- mvskPortfolio(m1 = m1, M2 = M2, M3 = M3, M4 = M4, w0 = "DR",
                          g = "mvsk", ub = rep(0.3, 5), href = "DR",
                          kappa = c(0, 0.01, 0.025, 0.05))
 
 # show weights
 barplot(resMVSK$w, beside = TRUE)
+
+# VSK tiltin - starting from "DR", tilting with maximum tracking error
+# volatility
+resVSK <- mvskPortfolio(M2 = M2, M3 = M3, M4 = M4, w0 = "DR",
+                        g = "mvsk", ub = rep(0.3, 5), href = "TEvol",
+                        kappa = c(0, 0.001, 0.025))
+
+# show weights
+barplot(resVSK$w, beside = TRUE)
 
 }
 \references{
