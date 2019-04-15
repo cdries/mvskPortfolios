@@ -32,6 +32,8 @@
 #' @param relative boolean indicating if kappa is absolute or relative
 #' @param param list with extra arguments for the href function
 #' @param options optimization options
+#' @param mompref direction of preference for the moments, defaults to higher mean and skewnes,
+#' lower variance and kurtosis
 #' @author Dries Cornilly
 #' @references
 #' Boudt, K., Cornilly, D., Van Holle, F., & Willems, J. (2019). Algorithmic portfolio
@@ -67,8 +69,8 @@
 #' @export mvskPortfolio
 mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL, w0 = NULL, g = NULL,
                           lb = NULL, ub = NULL, lin_eq = NULL, lin_eqC = NULL, nlin_eq = NULL,
-                          lin_ieq = NULL, lin_ieqC = NULL, nlin_ieq = NULL, href = NULL,
-                          kappa = NULL, relative = FALSE, param = NULL, options = list()) {
+                          lin_ieq = NULL, lin_ieqC = NULL, nlin_ieq = NULL, href = NULL, kappa = NULL,
+                          relative = FALSE, param = NULL, options = list(), mompref = NULL) {
 
   p <- nrow(M2)
 
@@ -99,7 +101,7 @@ mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL, w0 = NULL,
   if (is.null(href)) {
     # unrestricted MVSK efficient portfolio
     effport <- solveMVSKPortfolio(p, w0, g, m1, M2, M3, M4, indmom, lb, ub, lin_eq, lin_eqC, nlin_eq,
-                                  lin_ieq, lin_ieqC, nlin_ieq, options, NULL, 0, FALSE, NULL, NULL)
+                                  lin_ieq, lin_ieqC, nlin_ieq, options, NULL, 0, FALSE, NULL, mompref)
 
   } else {
     # efficient portfolio with restriction on href
@@ -111,7 +113,7 @@ mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL, w0 = NULL,
     for (ii in 1:length(kappa)) {
       effport <- solveMVSKPortfolio(p, w0, g, m1, M2, M3, M4, indmom, lb, ub, lin_eq, lin_eqC,
                                     nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options,
-                                    href, kappa[ii], relative, param, NULL)
+                                    href, kappa[ii], relative, param, mompref)
       wopt[ii,] <- effport$w
       delta[ii] <- effport$delta
       moms[ii,] <- effport$moms

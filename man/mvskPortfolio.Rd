@@ -9,7 +9,7 @@ mvskPortfolio(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
   w0 = NULL, g = NULL, lb = NULL, ub = NULL, lin_eq = NULL,
   lin_eqC = NULL, nlin_eq = NULL, lin_ieq = NULL, lin_ieqC = NULL,
   nlin_ieq = NULL, href = NULL, kappa = NULL, relative = FALSE,
-  param = NULL, options = list())
+  param = NULL, options = list(), mompref = NULL)
 }
 \arguments{
 \item{m1}{mean vector; not used if NULL}
@@ -49,6 +49,9 @@ mvskPortfolio(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
 \item{param}{list with extra arguments for the href function}
 
 \item{options}{optimization options}
+
+\item{mompref}{direction of preference for the moments, defaults to higher mean and skewnes,
+lower variance and kurtosis}
 }
 \description{
 function determining risk based portfolios that are mean-variance-skewness-kurtosis efficient.
