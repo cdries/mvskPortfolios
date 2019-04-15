@@ -20,5 +20,5 @@ getmomgr <- function(indmom, w, m1, M2, M3, M4) {
   if (indmom[4]) momsgr[4,] <- PerformanceAnalytics:::derportm4(w, M4)
   momsgr <- momsgr[indmom,]
 
-  return (momsgr)
+  momsgr
 }

@@ -1,6 +1,27 @@
 
 solvePortfolio <- function(p, w0, m1, M2, M3, M4, lb, ub, lin_eq, lin_eqC,
-                           nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options) {
+                           nlin_eq, lin_ieq, lin_ieqC, nlin_ieq, options, param) {
+
+  ### input
+  # p         : dimension of the portfolio
+  # w0        : name of portfolio to optimize
+  # m1        : vector with expected returns
+  # M2        : covariance matrix
+  # M3        : coskewness matrix
+  # M4        : cokurtosis matrix
+  # lb        : vector with lower bounds for the weights
+  # ub        : vector with upper bounds for the weights
+  # lin_eq    : equality constraints: eq w = eqC (should be matrix!), see details
+  # lin_eqC   : equality constraints: eq w = eqC, see details
+  # nlin_eq   : function with non-linear equality constraint (returns objective value and jacobian)
+  # lin_ieq   : inequality constraints: ieq w leq ieqC (should be matrix!)
+  # lin_ieqC  : inequality constraints: ieq w leq ieqC
+  # nlin_ieq  : function with non-linear inequality constraints (returns objective value and jacobian)
+  # options   : optimization options
+  # param     : additional parameters in a named list for the objective function (such as gamma for EU)
+  #
+  ### output
+  # vector with optimal weights
 
   ### optimization options
   if (!("maxeval" %in% names(options))) options$maxeval = 10000
@@ -10,10 +31,6 @@ solvePortfolio <- function(p, w0, m1, M2, M3, M4, lb, ub, lin_eq, lin_eqC,
 
 
   ### set up constraints
-  # box constraints
-  if (is.null(lb)) lb <- rep(0, p)
-  if (is.null(ub)) ub <- rep(1, p)
-
   # equality constraints
   g_eq <- function(w) {
 
@@ -32,7 +49,7 @@ solvePortfolio <- function(p, w0, m1, M2, M3, M4, lb, ub, lin_eq, lin_eqC,
       jac <- rbind(jac, nlin_eq_res$jacobian)
     }
 
-    return (list("constraints" = cts, "jacobian" = jac))
+    list(constraints = cts, jacobian = jac)
   }
 
   # inequality constraints
@@ -53,20 +70,12 @@ solvePortfolio <- function(p, w0, m1, M2, M3, M4, lb, ub, lin_eq, lin_eqC,
       jac <- rbind(jac, nlin_ieq_res$jacobian)
     }
 
-    return (list("constraints" = cts, "jacobian" = jac))
+    list(constraints = cts, jacobian = jac)
   }
 
 
   ### Select objective function
-  if (w0 == "maxDiv") {
-    fn <- function(w) fDR(w, M2)
-  } else if (w0 == "ERC") {
-    fn <- function(w) fERC(w, M2)
-  } else if (w0 == "HI") {
-    fn <- function(w) fHI(w)
-  } else {
-    stop("Choose a valid portfolio objective")
-  }
+  fn <- get_href(w0, m1, M2, M3, M4, param)
 
 
   ### optimize portfolio
@@ -74,6 +83,6 @@ solvePortfolio <- function(p, w0, m1, M2, M3, M4, lb, ub, lin_eq, lin_eqC,
   sol <- nloptr::nloptr(x0 = w00, eval_f = fn, lb = lb, ub = ub,
                         eval_g_eq = g_eq, eval_g_ineq = g_ineq, opts = options)
 
-  return (list("wopt" = sol$solution, "val" = sol$objective, "name" = w0))
+  sol$solution
 }
 

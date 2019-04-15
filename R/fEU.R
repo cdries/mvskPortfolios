@@ -1,8 +1,9 @@
 
-fEU <- function(w, M2, M3, M4, m1 = NULL) {
+fEU <- function(w, gamma, M2, M3, M4, m1 = NULL) {
 
   ### input
   # w         : weight vector
+  # gamma     : coefficient of risk aversion
   # M2        : covariance matrix
   # M3        : coskewness matrix
   # M4        : cokurtosis matrix
@@ -30,5 +31,5 @@ fEU <- function(w, M2, M3, M4, m1 = NULL) {
   gr <- -m1 + gamma * momsgrad2 / 2 - gamma * (gamma + 1) * momsgrad3 / 6 +
     gamma * (gamma + 1) * (gamma + 2) * momsgrad4 / 24
 
-  return (list("objective" = obj, "gradient" = gr))
+  list(objective = obj, gradient = gr)
 }

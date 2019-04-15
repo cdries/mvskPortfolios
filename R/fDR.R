@@ -18,5 +18,5 @@ fDR <- function(w, M2) {
   # gradient
   gr <- -(s / sqrt(wSigw) - sum(w * s) / (wSigw)^1.5 * M2 %*% w)
 
-  return (list("objective" = obj, "gradient" = gr))
+  list(objective = obj, gradient = gr)
 }

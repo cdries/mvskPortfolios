@@ -22,5 +22,5 @@ fERC <- function(w, M2) {
   gr <- 2 * (sp^2 * (M2 %*% (w * dff) + dff * Sigw) -
                2 * sum(w * dff * Sigw) * Sigw) / sp^4
 
-  return (list("objective" = obj, "gradient" = gr))
+  list(objective = obj, gradient = gr)
 }

@@ -19,5 +19,5 @@ getmom <- function(indmom, w, m1, M2, M3, M4) {
   if (indmom[3]) moms <- c(moms, PerformanceAnalytics:::portm3(w, M3))
   if (indmom[4]) moms <- c(moms, PerformanceAnalytics:::portm4(w, M4))
 
-  return (moms)
+  moms
 }

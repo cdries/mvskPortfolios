@@ -14,5 +14,5 @@ fHI <- function(w) {
   # gradient
   gr <- 2 * w
 
-  return (list("objective" = obj, "gradient" = gr))
+  list(objective = obj, gradient = gr)
 }
