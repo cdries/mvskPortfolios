@@ -101,7 +101,7 @@ mvskPortfolio <- function(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL, w0 = NULL,
   # initialize direction g of moment improvement
   indmom <- !c(is.null(m1), is.null(M2), is.null(M3), is.null(M4))
   if (is.null(g)) g <- abs(getmom(indmom, w0, m1, M2, M3, M4))
-  if (is.character(g) && g[1] == "mvsk") {
+  if (is.character(g) && g[1] %in% c("mvsk", "vsk")) {
     g <- abs(getmom(indmom, w0, m1, M2, M3, M4))
     if (indmom[1]) g[1] <- 0
   }
