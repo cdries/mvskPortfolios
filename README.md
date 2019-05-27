@@ -7,7 +7,7 @@ This R package implements the MVSK portfolio tilting framework proposed in the p
 Installing the developer version of the package is possible by
 
 ```
-devtools::instal_github("cdries/mvskPortfolios")
+devtools::install_github("cdries/mvskPortfolios")
 ```
 
 The main function for constructing tilted portfolios is `mvskPortfolio` and the documentation can be accessed by
