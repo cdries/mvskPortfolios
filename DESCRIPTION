@@ -1,16 +1,15 @@
 Package: mvskPortfolios
 Type: Package
-Title: Higher moment efficient portfolios
+Title: Higher Moment Efficient Portfolios
 Version: 0.1.0
 Authors@R: c(
   person(given="Dries", family="Cornilly", role=c("cre", "aut"), email="driescornilly@gmail.com")
   , person(given="Kris", family="Boudt", role="aut")
   )
-Description: This package is designed to tilt financial portfolios to achieve more preferable moments.
-Suggests: knitr, xts
+Description: Tilting financial portfolios to achieve more preferable moments.
+Suggests: xts
 Imports: nloptr, PerformanceAnalytics
 License: GPL-2 | GPL-3
 Encoding: UTF-8
 LazyData: true
-VignetteBuilder: knitr
 RoxygenNote: 6.1.0
