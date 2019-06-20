@@ -17,17 +17,17 @@ fEU <- function(w, gamma, M2, M3, M4, m1 = NULL) {
 
   # objective value
   mom1 <- sum(w * m1)
-  mom2 <- PerformanceAnalytics:::portm2(w, M2)
-  mom3 <- PerformanceAnalytics:::portm3(w, M3)
-  mom4 <- PerformanceAnalytics:::portm4(w, M4)
+  mom2 <- portm2(w, M2)
+  mom3 <- portm3(w, M3)
+  mom4 <- portm4(w, M4)
   obj <- -mom1 + gamma * mom2 / 2 - gamma * (gamma + 1) * mom3 / 6 +
     gamma * (gamma + 1) * (gamma + 2) * mom4 / 24
 
   # gradient
   momsgrad1 <- m1
-  momsgrad2 <- PerformanceAnalytics:::derportm2(w, M2)
-  momsgrad3 <- PerformanceAnalytics:::derportm3(w, M3)
-  momsgrad4 <- PerformanceAnalytics:::derportm4(w, M4)
+  momsgrad2 <- derportm2(w, M2)
+  momsgrad3 <- derportm3(w, M3)
+  momsgrad4 <- derportm4(w, M4)
   gr <- -m1 + gamma * momsgrad2 / 2 - gamma * (gamma + 1) * momsgrad3 / 6 +
     gamma * (gamma + 1) * (gamma + 2) * momsgrad4 / 24
 
