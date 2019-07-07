@@ -1,14 +1,14 @@
-#' Risk-based higher-order moment efficient portfolios
+#' Higher Moment Efficient Portfolios
 #'
-#' function determining risk based portfolios that are mean-variance-skewness-kurtosis efficient.
+#' function for determining risk-based portfolios that are mean-variance-skewness-kurtosis efficient.
 #'
-#' moments with NULL are ignored; default is maxDiv as starting point; unconstrained, just set kappa to 1
-#'
-#' possible initial portfolios are "maxDiv" for the maximum diversified portfolio of REF.
-#'
-#' the vector g should have positive values, the default value is g = (0, sigma_^2_w0, abs(phi_w0), psi_w0)
-#'
-#' lin_eq and lin_eqC default to the full investment constraint
+#' All moments with NULL are ignored as tilting constraints. The default uses the most diversified portfolio of
+#' houeifaty & Coignard (2008) as initial portfolio. For unconstrained portfolio tilting, set kappa to 1, which
+#' allows 100% improvements in the moments. The vector g should generally have positive values. Its default
+#' is g = (0, sigma_^2_w0, abs(phi_w0), psi_w0). Additional linearity and non-linearity constraints can be
+#' included in the optimization procedure with the arguments lin_eq, lin_eqC, nlin_eq, lin_ieq, lin_ieqC and
+#' nlin_ieq. The default includes a full investment constraint (sum of weights equal to 1), overriding
+#' lin_eq and lin_eqC removes the default constraint.
 #'
 #' @name mvskPortfolio
 #' @encoding UTF-8
@@ -37,7 +37,7 @@
 #' @author Dries Cornilly
 #' @references
 #' Boudt, K., Cornilly, D., Van Holle, F., & Willems, J. (2019). Algorithmic portfolio
-#' tilting to harvest higher moment gains. working paper
+#' tilting to harvest higher moment gains. working paper. https://ssrn.com/abstract=3378491
 #'
 #' Briec, W., Kerstens, K., & Jokung, O. (2007). Mean-variance-skewness portfolio
 #' performance gauging: a general shortage function and dual approach.
