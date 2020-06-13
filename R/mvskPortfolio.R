@@ -36,8 +36,8 @@
 #' lower variance and kurtosis
 #' @author Dries Cornilly
 #' @references
-#' Boudt, K., Cornilly, D., Van Holle, F., & Willems, J. (2019). Algorithmic portfolio
-#' tilting to harvest higher moment gains. working paper. https://ssrn.com/abstract=3378491
+#' Boudt, K., Cornilly, D., Van Holle, F., & Willems, J. (2020). Algorithmic portfolio
+#' tilting to harvest higher moment gains. Heliyon, 6(3).
 #'
 #' Briec, W., Kerstens, K., & Jokung, O. (2007). Mean-variance-skewness portfolio
 #' performance gauging: a general shortage function and dual approach.

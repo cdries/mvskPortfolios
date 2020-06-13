@@ -6,10 +6,10 @@ Authors@R: c(
   person(given="Dries", family="Cornilly", role=c("cre", "aut"), email="driescornilly@gmail.com")
   , person(given="Kris", family="Boudt", role="aut")
   )
-Description: Tilting financial portfolios to achieve more preferable moments. The package implements the method described in the paper Boudt et al. (2019). Algorithmic portfolio tilting to harvest higher moment gains. <SSRN:https://ssrn.com/abstract=3378491>.
+Description: Tilting financial portfolios to achieve more preferable moments. The package implements the method described in the paper Boudt et al. (2020). Algorithmic portfolio tilting to harvest higher moment gains. Heliyon, 6(3).
 Suggests: xts
 Imports: nloptr, PerformanceAnalytics
 License: GPL-2 | GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
