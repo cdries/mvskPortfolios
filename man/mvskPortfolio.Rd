@@ -5,11 +5,28 @@
 \alias{mvskPortfolio}
 \title{Higher Moment Efficient Portfolios}
 \usage{
-mvskPortfolio(m1 = NULL, M2 = NULL, M3 = NULL, M4 = NULL,
-  w0 = NULL, g = NULL, lb = NULL, ub = NULL, lin_eq = NULL,
-  lin_eqC = NULL, nlin_eq = NULL, lin_ieq = NULL, lin_ieqC = NULL,
-  nlin_ieq = NULL, href = NULL, kappa = NULL, relative = FALSE,
-  param = NULL, options = list(), mompref = NULL)
+mvskPortfolio(
+  m1 = NULL,
+  M2 = NULL,
+  M3 = NULL,
+  M4 = NULL,
+  w0 = NULL,
+  g = NULL,
+  lb = NULL,
+  ub = NULL,
+  lin_eq = NULL,
+  lin_eqC = NULL,
+  nlin_eq = NULL,
+  lin_ieq = NULL,
+  lin_ieqC = NULL,
+  nlin_ieq = NULL,
+  href = NULL,
+  kappa = NULL,
+  relative = FALSE,
+  param = NULL,
+  options = list(),
+  mompref = NULL
+)
 }
 \arguments{
 \item{m1}{mean vector; not used if NULL}
@@ -96,8 +113,8 @@ barplot(resVSK$w, beside = TRUE)
 
 }
 \references{
-Boudt, K., Cornilly, D., Van Holle, F., & Willems, J. (2019). Algorithmic portfolio
-tilting to harvest higher moment gains. working paper. https://ssrn.com/abstract=3378491
+Boudt, K., Cornilly, D., Van Holle, F., & Willems, J. (2020). Algorithmic portfolio
+tilting to harvest higher moment gains. Heliyon, 6(3).
 
 Briec, W., Kerstens, K., & Jokung, O. (2007). Mean-variance-skewness portfolio
 performance gauging: a general shortage function and dual approach.
